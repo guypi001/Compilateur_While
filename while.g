@@ -1,5 +1,11 @@
 grammar while;
 
+
+
+options { 
+  output=AST; 
+}
+
 program	:	(function program*) 
 		;
 		
