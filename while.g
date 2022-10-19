@@ -34,4 +34,4 @@ lExpr	:	exprBase lExpr*;
 
 
 VARIABLE	:	'A'..'Z' ( 'A'..'Z' | 'a'..'z' | '0'..'9' )* ('!'|'?')?;
-SYMBOL	:	;
+SYMBOL	:	'a'..'z' ( 'A'..'Z' | 'a'..'z' | '0'..'9' )* ('!'|'?')?;
