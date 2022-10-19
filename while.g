@@ -1,7 +1,7 @@
 grammar while;
 
-program	:	(function program) 
-		| function;
+program	:	(function program*) 
+		;
 		
 function	:	'function' SYMBOL ':' definition;
 
