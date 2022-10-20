@@ -40,8 +40,8 @@ command	:
 		(vars (':='^ exprs)+) 
 		| ('if' expression 'then' commands ('else' commands)? 'fi')  ->  expression commands+
 		| ( 'while' expression 'do' commands 'od') -> expression commands
-		| ('for' expression 'do' commands 'od') ->  expression ^( 'for' commands)
-		| ('foreach' VARIABLE 'in' expression 'do' commands 'od') -> expression ^( 'foreach' commands)
+		| ('for' expression 'do' commands 'od') ->  expression  ^( 'for' commands)
+		| ('foreach' VARIABLE 'in' expression 'do' commands 'od') -> expression  ^( 'foreach' commands)
 		;
 vars	:	
 		VARIABLE (','^ vars)*
