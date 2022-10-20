@@ -6,37 +6,62 @@ options {
   output=AST; 
 }
 
-program	:	(function program*) 
+program	:	
+		function program*
 		;
 		
-function	:	'function' SYMBOL ':' definition;
+function	:	
+		'function' SYMBOL ':' definition -> definition
+		;
 
 definition
-	:	'read' input '%' commands '%' 'write' output;
+	:	
+		'read' input '%' commands '%' 'write' output -> input commands output
+		;
 
-input	:	inputSub?;
+input	:	
+		inputSub?
+		;
 
-inputSub	:	VARIABLE (',' inputSub)*;
+inputSub	:	
+		VARIABLE (','^ inputSub)*
+		;
 
-output	:	VARIABLE (',' output)*;
+output	:	
+		VARIABLE (','^ output)*
+		;
 
-commands	:	(command ( ';' commands)*)  | 'nop';
+commands	:	
+		(command ( ';'^ commands)*)  
+		| 'nop'
+		;
 
-command	:	(vars (':=' exprs)+) 
-		| ('if' expression 'then' commands ('else' commands)? 'fi') 
-		| ( 'while' expression 'do' commands 'od')
-		| ('for' expression 'do' commands 'od')
-		| 'foreach' VARIABLE 'in' expression 'do' commands 'od');
-vars	:	VARIABLE (',' vars)*;
-exprs	:	expression (',' exprs)*;
-exprBase	:	'nil' 
+command	:	
+		(vars (':='^ exprs)+) 
+		| ('if' expression 'then' commands ('else' commands)? 'fi')  ->  expression commands+
+		| ( 'while' expression 'do' commands 'od') -> expression commands
+		| ('for' expression 'do' commands 'od') ->  expression ^( 'for' commands)
+		| ('foreach' VARIABLE 'in' expression 'do' commands 'od') -> expression ^( 'foreach' commands)
+		;
+vars	:	
+		VARIABLE (','^ vars)*
+		;
+exprs	:	
+		expression (','^ exprs)*
+		;
+exprBase	:	
+		'nil' 
 		| VARIABLE 
 		| SYMBOL
-		| ( '(' ('cons'|'list'|'hd'|'tl'|SYMBOL) lExpr ')')
+		| ( '(' ('cons'|'list'|'hd'|'tl'|SYMBOL) lExpr ')') -> lExpr
 		;
 expression
-	:	exprBase ('=?' exprBase)*;
-lExpr	:	exprBase lExpr*;
+	:	
+		exprBase ('=?'^ exprBase)*
+		;
+lExpr	:	
+		exprBase lExpr*
+		;
 
 
 VARIABLE	:	'A'..'Z' ( 'A'..'Z' | 'a'..'z' | '0'..'9' )* ('!'|'?')?;
