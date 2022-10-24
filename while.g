@@ -1,9 +1,26 @@
 grammar while;
 
-
-
 options { 
   output=AST; 
+}
+
+tokens{
+	DEF;
+	FOR;
+	WHILE;
+	FOREACH;
+	FONC;
+	READ_WRITE;
+	IF;
+	THEN;
+	ELSE;
+	DO;
+	IN;
+	VAR;
+	COMM;
+	NIL;
+	BASE;
+	SYM;
 }
 
 program	:	
@@ -11,12 +28,13 @@ program	:
 		;
 		
 function	:	
-		'function' SYMBOL ':' definition -> definition
+		'function' SYMBOL ':' definition -> ^(FONC SYMBOL definition)
 		;
+	
 
 definition
 	:	
-		'read' input '%' commands '%' 'write' output -> input commands output
+		'read' input '%' commands '%' 'write' output ->  ^(READ_WRITE input commands output)
 		;
 
 input	:	
@@ -24,45 +42,48 @@ input	:
 		;
 
 inputSub	:	
-		VARIABLE (','^ inputSub)*
+		VARIABLE (','  VARIABLE)* -> ^(VAR VARIABLE+ )
 		;
 
 output	:	
-		VARIABLE (','^ output)*
+		VARIABLE (',' VARIABLE)*-> ^(VAR VARIABLE+ )
 		;
 
 commands	:	
-		(command ( ';'^ commands)*)  
-		| 'nop'
+		(command ( ';' command)*)  -> ^(COMM command+ )
+		| 'nop' -> ^( NIL )
 		;
 
 command	:	
-		(vars (':='^ exprs)+) 
-		| ('if' expression 'then' commands ('else' commands)? 'fi')  ->  expression commands+
-		| ( 'while' expression 'do' commands 'od') -> expression commands
-		| ('for' expression 'do' commands 'od') ->  expression  ^( 'for' commands)
-		| ('foreach' VARIABLE 'in' expression 'do' commands 'od') -> expression  ^( 'foreach' commands)
+		(vars (':=' exprs)+) ->
+		| ('if' expression 'then' commands ('else' commands)? 'fi')  ->  ^(IF ^(THEN expression )  ^(ELSE commands?))
+		| ( 'while' expression 'do' commands 'od') -> ^(WHILE expression ^(DO commands))
+		| ('for' expression 'do' commands 'od') ->  ^(FOR expression  ^( DO commands))
+		| ('foreach' VARIABLE 'in' expression 'do' commands 'od') -> ^(FOREACH VARIABLE  ^(IN  expression) ^(DO commands ))
 		;
 vars	:	
-		VARIABLE (','^ vars)*
+		VARIABLE (','^ vars)* -> ^(VAR VARIABLE+ )
 		;
 exprs	:	
-		expression (','^ exprs)*
+		expression (','^ exprs)* -> ^(VAR VARIABLE+ )
 		;
 exprBase	:	
-		'nil' 
-		| VARIABLE 
-		| SYMBOL
-		| ( '(' ('cons'|'list'|'hd'|'tl'|SYMBOL) lExpr ')') -> lExpr
+		'nil' -> ^(NIL)
+		| VARIABLE -> ^(VAR VARIABLE ) 
+		| SYMBOL -> ^(SYM SYMBOL )
+		| ( '(' ('cons'|'list'|'hd'|'tl'|SYMBOL) lExpr ')') -> ^(BASE lExpr )
 		;
 expression
 	:	
-		exprBase ('=?'^ exprBase)*
+		exprBase ('=?' exprBase)* -> ^('=?' exprBase+ )
 		;
 lExpr	:	
-		exprBase lExpr*
+		exprBase+
 		;
 
 
 VARIABLE	:	'A'..'Z' ( 'A'..'Z' | 'a'..'z' | '0'..'9' )* ('!'|'?')?;
 SYMBOL	:	'a'..'z' ( 'A'..'Z' | 'a'..'z' | '0'..'9' )* ('!'|'?')?;
+
+
+
