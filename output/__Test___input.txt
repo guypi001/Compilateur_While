@@ -1,0 +1,26 @@
+function false :
+read
+%
+Result := nil
+%
+write Result
+function not :
+read Op1
+%
+if Op1 then Result := (false) else Result := (true) fi
+%
+write Result
+function and :
+read Op1, Op2
+%
+if (not Op1) then
+Result := (false)
+else
+if (not Op2) then
+Result := (false)
+else
+Result := (true)
+fi
+fi
+%
+write Result
